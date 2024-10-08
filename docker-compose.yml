@@ -1,6 +1,10 @@
 version: '3.7'
 
 services:
+  webapi:
+    build: .
+    ports:
+      - "8081:8081"
   mongodb:
     image: mongo:latest
     container_name: mongodb
