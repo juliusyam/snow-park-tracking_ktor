@@ -13,6 +13,7 @@ db:
     database:
       name: "mongo"
 jwt:
-  domain: "https://jwt-provider-domain/"
-  audience: "jwt-audience"
-  realm: "ktor sample app"
+  secret: "secret"
+  issuer: "http://0.0.0.0:8081/"
+  audience: "http://0.0.0.0:8081/"
+  realm: "Snow Park Tracking - Ktor"

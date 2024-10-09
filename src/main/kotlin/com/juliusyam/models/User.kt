@@ -49,4 +49,5 @@ data class User(
     }
 }
 
+data class UserResponse(val user: User, val token: String)
 

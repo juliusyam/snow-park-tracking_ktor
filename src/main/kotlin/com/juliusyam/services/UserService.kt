@@ -1,7 +1,10 @@
 package com.juliusyam.services
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
 import com.google.gson.Gson
 import com.juliusyam.models.User
+import com.juliusyam.models.UserResponse
 import com.juliusyam.models.auth.LoginPayload
 import com.juliusyam.models.auth.RegistrationPayload
 import com.juliusyam.utilities.Password
@@ -15,8 +18,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.bson.Document
 import org.mindrot.jbcrypt.BCrypt
+import java.util.*
 
-class UserService(database: MongoDatabase) {
+class UserService(database: MongoDatabase, private val environment: ApplicationEnvironment) {
     private val collection: MongoCollection<Document>
 
     init {
@@ -58,7 +62,21 @@ class UserService(database: MongoDatabase) {
 
         user?.let {
             if (BCrypt.checkpw(payload.password, it.passwordHash)) {
-                call.respond(HttpStatusCode.Accepted, Gson().toJson(it))
+                val secret = environment.config.property("jwt.secret").getString()
+                val issuer = environment.config.property("jwt.issuer").getString()
+                val audience = environment.config.property("jwt.audience").getString()
+
+                // TODO: Retrieve User Id
+                val token = JWT.create()
+                    .withAudience(audience)
+                    .withIssuer(issuer)
+                    .withClaim("username", user.username)
+                    .withClaim("firstName", user.firstName)
+                    .withAudience("lastName", user.lastName)
+                    .withExpiresAt(Date(System.currentTimeMillis() + 60_000))
+                    .sign(Algorithm.HMAC256(secret))
+
+                call.respond(Gson().toJson(UserResponse(it, token)))
             } else {
                 call.respond(HttpStatusCode.Unauthorized, "Password is incorrect")
             }

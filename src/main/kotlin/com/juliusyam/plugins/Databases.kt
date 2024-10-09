@@ -15,7 +15,7 @@ import io.ktor.server.routing.*
 fun Application.configureDatabases() {
     val mongoDatabase = connectToMongoDB()
     val carService = CarService(mongoDatabase)
-    val userService = UserService(mongoDatabase)
+    val userService = UserService(mongoDatabase, environment)
     routing {
         post("/register") {
             val payload = call.receive<RegistrationPayload>()
