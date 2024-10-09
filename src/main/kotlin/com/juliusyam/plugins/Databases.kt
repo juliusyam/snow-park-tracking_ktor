@@ -1,5 +1,6 @@
 package com.juliusyam.plugins
 
+import com.juliusyam.models.auth.LoginPayload
 import com.juliusyam.models.auth.RegistrationPayload
 import com.juliusyam.services.UserService
 import com.mongodb.client.MongoClients
@@ -19,6 +20,11 @@ fun Application.configureDatabases() {
         post("/register") {
             val payload = call.receive<RegistrationPayload>()
             userService.registerUser(call, payload)
+        }
+
+        post("/login") {
+            val payload = call.receive<LoginPayload>()
+            userService.login(call, payload)
         }
 
         // Create car

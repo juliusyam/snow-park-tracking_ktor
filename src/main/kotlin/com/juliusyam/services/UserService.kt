@@ -2,6 +2,7 @@ package com.juliusyam.services
 
 import com.google.gson.Gson
 import com.juliusyam.models.User
+import com.juliusyam.models.auth.LoginPayload
 import com.juliusyam.models.auth.RegistrationPayload
 import com.juliusyam.utilities.Password
 import com.mongodb.client.MongoCollection
@@ -13,6 +14,7 @@ import io.ktor.server.response.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.bson.Document
+import org.mindrot.jbcrypt.BCrypt
 
 class UserService(database: MongoDatabase) {
     private val collection: MongoCollection<Document>
@@ -42,11 +44,27 @@ class UserService(database: MongoDatabase) {
         collection.insertOne(doc)
         val id = doc["_id"].toString()
 
-        val userWithId = user.provideId(id)
+//        val userWithId = user.provideId(id)
 
         println("User ID: $id")
 
-        call.respond(HttpStatusCode.Created, Gson().toJson(userWithId))
+        call.respond(HttpStatusCode.Created, Gson().toJson(user))
+    }
+
+    suspend fun login(call: ApplicationCall, payload: LoginPayload) = withContext(Dispatchers.IO) {
+
+        val user = collection.find(Filters.eq("username", payload.username)).first()
+            ?.let(User.Companion::fromDocument)
+
+        user?.let {
+            if (BCrypt.checkpw(payload.password, it.passwordHash)) {
+                call.respond(HttpStatusCode.Accepted, Gson().toJson(it))
+            } else {
+                call.respond(HttpStatusCode.Unauthorized, "Password is incorrect")
+            }
+        } ?: run {
+            call.respond(HttpStatusCode.NotFound, "User not found")
+        }
     }
 
     private fun usernameIsOccupied(username: String): Boolean =

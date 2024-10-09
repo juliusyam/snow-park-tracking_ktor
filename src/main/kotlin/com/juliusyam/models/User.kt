@@ -1,7 +1,6 @@
 package com.juliusyam.models
 
 import com.juliusyam.models.auth.RegistrationPayload
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -11,8 +10,6 @@ import java.time.ZoneOffset
 
 @Serializable
 data class User(
-    @SerialName("_id")
-    var id: String = "",
     val username: String,
     val email: String,
     val passwordHash: String,
@@ -26,10 +23,10 @@ data class User(
 ) {
     fun toDocument(): Document = Document.parse(Json.encodeToString(this))
 
-    fun provideId(id: String): User {
-        this.id = id
-        return this
-    }
+//    fun provideId(id: String): User {
+//        this._id = id
+//        return this
+//    }
 
     companion object {
         private val json = Json { ignoreUnknownKeys = true }
@@ -38,7 +35,6 @@ data class User(
 
         fun createUser(payload: RegistrationPayload, passwordHash: String): User {
             return User(
-                "",
                 payload.username,
                 payload.email,
                 passwordHash,
