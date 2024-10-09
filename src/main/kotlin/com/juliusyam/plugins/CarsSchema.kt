@@ -6,9 +6,8 @@ import com.mongodb.client.model.Filters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.bson.Document
 import org.bson.types.ObjectId
 
@@ -27,7 +26,7 @@ data class Car(
     }
 }
 
-class CarService(private val database: MongoDatabase) {
+class CarService(database: MongoDatabase) {
     var collection: MongoCollection<Document>
 
     init {

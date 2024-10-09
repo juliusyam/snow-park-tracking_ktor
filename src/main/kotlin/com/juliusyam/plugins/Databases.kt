@@ -1,5 +1,7 @@
 package com.juliusyam.plugins
 
+import com.juliusyam.models.auth.RegistrationPayload
+import com.juliusyam.services.UserService
 import com.mongodb.client.MongoClients
 import com.mongodb.client.MongoDatabase
 import io.ktor.http.*
@@ -12,7 +14,13 @@ import io.ktor.server.routing.*
 fun Application.configureDatabases() {
     val mongoDatabase = connectToMongoDB()
     val carService = CarService(mongoDatabase)
+    val userService = UserService(mongoDatabase)
     routing {
+        post("/register") {
+            val payload = call.receive<RegistrationPayload>()
+            userService.registerUser(call, payload)
+        }
+
         // Create car
         post("/cars") {
             val car = call.receive<Car>()
